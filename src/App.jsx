@@ -12,12 +12,17 @@ import {
 import { 
   getLeaderboard, 
   updatePlayerStats, 
-  getPlayerStats 
+  getPlayerStats,
+  getActivePlayers,
+  addActivePlayer,
+  saveActivePlayers
 } from './utils/storageUtils.js';
 
 function App() {
   // Game state
   const [currentPlayer, setCurrentPlayer] = useState(null);
+  const [players, setPlayers] = useState([]); // active players turn order
+  const [turnIndex, setTurnIndex] = useState(0);
   const [targetColor, setTargetColor] = useState(generateRandomColor());
   const [selectedColor, setSelectedColor] = useState(null);
   const [gameResult, setGameResult] = useState(null);
@@ -28,9 +33,13 @@ function App() {
   const [streak, setStreak] = useState(0);
   const [leaderboard, setLeaderboard] = useState([]);
 
-  // Load leaderboard on component mount
+  // Load leaderboard and active players on component mount
   useEffect(() => {
     setLeaderboard(getLeaderboard());
+    const active = getActivePlayers();
+    setPlayers(active);
+    setCurrentPlayer(active.length > 0 ? active[0] : null);
+    setTurnIndex(0);
   }, []);
 
   // Update player's current score when they join
@@ -46,7 +55,19 @@ function App() {
   }, [currentPlayer]);
 
   const handlePlayerJoin = (username) => {
+    // If null, means switch to no player
+    if (!username) {
+      setCurrentPlayer(null);
+      setShowResult(false);
+      setSelectedColor(null);
+      setGameResult(null);
+      return;
+    }
+    const updated = addActivePlayer(username);
+    setPlayers(updated);
+    // If first player, set as current
     setCurrentPlayer(username);
+    setTurnIndex(Math.max(0, updated.indexOf(username)));
     setShowResult(false);
     setSelectedColor(null);
     setGameResult(null);
@@ -95,7 +116,23 @@ function App() {
     setCurrentScore(prev => prev + pointsEarned);
   };
 
-  const handleNextRound = () => {
+  const handleNext = () => {
+    // If 0 or 1 player, just next round
+    if (players.length <= 1) {
+      setTargetColor(generateRandomColor());
+      setSelectedColor(null);
+      setGameResult(null);
+      setShowResult(false);
+      return;
+    }
+
+    // Rotate to next player
+    const nextIndex = (turnIndex + 1) % players.length;
+    const nextPlayer = players[nextIndex] || null;
+    setTurnIndex(nextIndex);
+    setCurrentPlayer(nextPlayer);
+
+    // Prepare next round state
     setTargetColor(generateRandomColor());
     setSelectedColor(null);
     setGameResult(null);
@@ -161,7 +198,8 @@ function App() {
                 accuracy={gameResult.accuracy}
                 pointsEarned={gameResult.pointsEarned}
                 streak={gameResult.streak}
-                onNextRound={handleNextRound}
+                onNext={handleNext}
+                multiPlayer={players.length > 1}
                 isVisible={showResult}
               />
             )}
@@ -179,6 +217,21 @@ function App() {
             <PlayerForm 
               onPlayerJoin={handlePlayerJoin}
               currentPlayer={currentPlayer}
+              players={players}
+              onRemovePlayer={(u) => {
+                const remaining = players.filter(p => p !== u);
+                saveActivePlayers(remaining);
+                setPlayers(remaining);
+                // Adjust turn index and current player if needed
+                if (remaining.length === 0) {
+                  setCurrentPlayer(null);
+                  setTurnIndex(0);
+                } else {
+                  const newIndex = turnIndex % remaining.length;
+                  setTurnIndex(newIndex);
+                  setCurrentPlayer(remaining[newIndex]);
+                }
+              }}
             />
           </div>
         </div>
@@ -186,6 +239,9 @@ function App() {
         {/* Footer */}
         <footer className="mt-8 text-center glass-text-muted text-sm">
           <p>🎨 ColorGuesser - Test your color vision skills!</p>
+          {players.length > 1 && (
+            <p className="mt-2 glass-text-muted">Turn: {turnIndex + 1} / {players.length} • Next up: {players[(turnIndex + 1) % players.length]}</p>
+          )}
          
         </footer>
       </div>

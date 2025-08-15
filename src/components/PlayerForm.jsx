@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const PlayerForm = ({ onPlayerJoin, currentPlayer }) => {
+const PlayerForm = ({ onPlayerJoin, currentPlayer, players = [], onRemovePlayer }) => {
   const [username, setUsername] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,7 +41,28 @@ const PlayerForm = ({ onPlayerJoin, currentPlayer }) => {
             Click the color wheel to make your guess!
           </p>
         </div>
-        
+        {players.length > 0 && (
+          <div className="mb-4">
+            <p className="glass-text-secondary text-sm mb-2">Active Players</p>
+            <ul className="space-y-2 max-h-40 overflow-auto pr-1">
+              {players.map((p) => (
+                <li key={p} className={`flex items-center justify-between bg-white/10 rounded-md px-3 py-2 ${p === currentPlayer ? 'ring-1 ring-yellow-400' : ''}`}>
+                  <span className="glass-text-primary text-sm">{p}</span>
+                  {onRemovePlayer && (
+                    <button
+                      onClick={() => onRemovePlayer(p)}
+                      className="text-xs bg-white/20 hover:bg-white/30 glass-text-primary px-2 py-1 rounded"
+                      title="Remove player"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <button
           onClick={handleSwitchPlayer}
           className="w-full bg-white/20 hover:bg-white/30 glass-text-primary py-2 px-4 rounded-lg 
@@ -55,9 +76,7 @@ const PlayerForm = ({ onPlayerJoin, currentPlayer }) => {
 
   return (
     <div className="glass-card p-6">
-      <h3 className="text-lg font-semibold glass-text-primary mb-4 text-center">
-        Join Game
-      </h3>
+      <h3 className="text-lg font-semibold glass-text-primary mb-4 text-center">Join Game</h3>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -103,7 +122,7 @@ const PlayerForm = ({ onPlayerJoin, currentPlayer }) => {
       
       <div className="mt-4 text-xs glass-text-muted text-center">
         <p>Enter a username to start playing!</p>
-        <p className="mt-1">You can switch players anytime.</p>
+        <p className="mt-1">Add multiple players to auto-rotate turns after each result.</p>
       </div>
     </div>
   );

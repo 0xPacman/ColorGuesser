@@ -7,7 +7,8 @@ const GameResult = ({
   accuracy, 
   pointsEarned, 
   streak, 
-  onNextRound,
+  onNext,
+  multiPlayer = false,
   isVisible 
 }) => {
   if (!isVisible) return null;
@@ -89,13 +90,13 @@ const GameResult = ({
 
         {/* Next Round Button */}
         <button
-          onClick={onNextRound}
+          onClick={onNext}
           className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 
                      hover:to-purple-600 glass-text-primary font-semibold py-3 px-6 rounded-lg 
                      transition-all duration-200 shadow-lg hover:shadow-xl 
                      transform hover:scale-105 active:scale-95"
         >
-          Next Round 🎯
+          {multiPlayer ? 'Next Player 👥' : 'Next Round 🎯'}
         </button>
 
         {/* Achievement Messages */}
