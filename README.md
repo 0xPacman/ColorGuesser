@@ -1,70 +1,73 @@
+# React + TypeScript + Vite
 
-# 🎨 ColorGuesser
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-ColorGuesser is a single-page web application built with React, Vite, and Tailwind CSS. Test your color vision skills by matching a randomly generated target color using an interactive color wheel. Compete for high scores, earn streak bonuses, and climb the local leaderboard—all wrapped in a beautiful glassmorphism UI with slow-motion animated backgrounds.
+Currently, two official plugins are available:
 
-## Features
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-- **Interactive Color Wheel:** Select colors using a full HSV spectrum wheel for precise matching.
-- **Target Color Challenge:** Try to match the randomly generated target color as closely as possible.
-- **Scoring System:** Earn points based on color accuracy, with streak bonuses for consecutive great guesses.
-- **Leaderboard:** Track your best scores and compete locally with other players.
-- **Player Profiles:** Join as a player, switch users, and save your progress.
-- **Glassmorphism UI:** Modern, animated glass card effects and perfect text readability.
-- **Slow-Motion Animated Background:** Relaxing gradient animation for a premium look.
-- **Responsive Design:** Optimized for all screen sizes and devices.
+## React Compiler
 
-## Screenshots
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-![ColorGuesser Screenshot](public/vite.svg)
+## Expanding the ESLint configuration
 
-## Getting Started
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-### Prerequisites
-- Node.js (v18+ recommended)
-- npm
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-### Installation
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-```bash
-git clone https://github.com/0xPacman/ColorGuesser.git
-cd ColorGuesser
-npm install
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-### Running Locally
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```bash
-npm run dev
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser to play.
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-## Project Structure
-
-- `src/` — Main source code
-  - `components/` — Game UI components
-  - `utils/` — Color and storage utilities
-  - `index.css` — Tailwind and custom glassmorphism styles
-- `public/` — Static assets
-- `tailwind.config.js` — Tailwind configuration
-- `vite.config.js` — Vite configuration
-
-## Customization
-
-- **Background Animation Speed:** Easily adjust the gradient animation speed in `src/index.css`.
-- **Glassmorphism Effects:** Tweak glass card and text shadow styles in `index.css` for your own look.
-
-## Credits
-
-- Built by [0xPacman](https://github.com/0xPacman)
-- Powered by [React](https://react.dev/), [Vite](https://vitejs.dev/), and [Tailwind CSS](https://tailwindcss.com/)
-
-## License
-
-MIT
